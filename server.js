@@ -39,7 +39,6 @@ app.set('view engine', 'ejs');
 app.use('/assets', express.static('assets'));
 
 app.post('/', urlencodedParser, async(req, res) => {
-    date = Date.now();
     if (!req.body || !dbConnect) return res.sendStatus(400);
 
     let begDate = req.body.beginDate;
