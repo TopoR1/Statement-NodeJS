@@ -50,28 +50,28 @@ app.post('/', urlencodedParser, async(req, res) => {
     let id_group = 1;
 
     if (req.body['attendance_select_for_period'] && begDate && endDate) {
-        hookies = await query(`call attendance_select_for_period(${id_group}, '${begDate}', '${endDate}')`);
+        hookies = await query('call attendance_select_for_period(?, ?, ?)', [id_group, begDate, endDate]);
         hookies = hookies[0];
     }
 
     if (stud && arrUpdSts && req.body['attendance_update_statuses']) {
         if (Array.isArray(arrUpdSts)) {
             for (const item of arrUpdSts) {
-                await query(`call attendance_update_statuses(${stud}, '${item}', 2)`);
+                await query('call attendance_update_statuses(?, ?, ?)', [stud, item, 2]);
             }
-        } else await query(`call attendance_update_statuses(${stud}, '${arrUpdSts}', 2)`);
+        } else await query('call attendance_update_statuses(?, ?, ?)', [stud, arrUpdSts, 2]);
     }
 
     if (stud && begDate && endDate && (req.body['attendance_select_for_period_by_day'] || req.body['attendance_update_statuses'] || req.body['attendance_select_for_period'])) {
-        hookiesbyday = await query(`call attendance_select_for_period_by_day(${stud}, ${id_group}, '${begDate}', '${endDate}')`);
+        hookiesbyday = await query('call attendance_select_for_period_by_day(?, ?, ?, ?)', [stud, id_group, begDate, endDate]);
         hookiesbyday = hookiesbyday[0];
 
         for (const item in hookiesbyday) {
-            hookiesbyday[item]['dateOfLesson'] = `${hookiesbyday[item]['dateOfLesson'].toMysqlFormat()}`;
+            hookiesbyday[item]['dateOfLesson'] = hookiesbyday[item]['dateOfLesson'].toMysqlFormat();
         }
     }
 
-    let students = await query('call student_select_for_raport(1)');
+    let students = await query('call student_select_for_raport(?)', [id_group]);
     students = students[0];
 
     res.render('hooky', {
@@ -86,7 +86,7 @@ app.post('/', urlencodedParser, async(req, res) => {
 
 app.get('/', async(req, res) => {
     if (!dbConnect) return res.sendStatus(400);
-    const students = await query('call student_select_for_raport(1)');
+    const students = await query('call student_select_for_raport(?)', [1]);
 
     res.render('hooky', {
         'hookies': [],
