@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="../assets/css/style.css" />
+    <title>Управление ведомостью</title>
+</head>
+<body>
+    <form method="POST">
+        <div class="central" style="position: absolute;width: 90%;">
+            <div style="margin: 10px;" class="form-inline">
+                <div style="position: relative;left: 50%;transform: translate(-50%, 0);">
+                    <input style="margin: 5px;" class="form-control" type="date" name="beginDate" value="<%= beginDate %>" /> -
+                    <input style="margin: 5px;" class="form-control" type="date" name="endDate" value="<%= endDate %>" />
+                </div>
+            </div>
+            <div style="display: inline-block;width: 50%;position: absolute;padding: 10px;" class="table-wrapper">
+                <h2 style="text-align: center;margin: 10px;">Ведомость</h2>
+                <div class="form-inline">
+                    <div style="position: relative;left: 50%;transform: translate(-50%, 0);">
+                        <input style="margin: 10px;" class="btn btn-primary" type="submit" name="attendance_select_for_period" value="Сформировать ведомость" />
+                    </div>
+                </div>
+                <table class="fl-table">
+                    <thead>
+                    <tr>
+                        <th rowspan="2">№</th>
+                        <th rowspan="2">Студент</th>
+                        <th rowspan="2">Всего</th>
+                        <th colspan="3">Пропуски</th>
+                    </tr>
+                    <tr>
+                        <td class="first">Без ув. причины</td>
+                        <td class="first">По ув. причине, но без подтверждения</td>
+                        <td class="first">По ув. причине</td>
+                    </tr>
+                    </thead>
+                    <% hookies.forEach((hooky) => { %>
+                    <tr>
+                        <td><%= hooky.number %></td>
+                        <td><%= hooky.student_name %></td>
+                        <% if (!hooky.total) { %>
+                            <td style="background: #3bca3b;">0</td>
+                        <% } else { %>
+                            <% if (hooky.total == hooky.with_good_reason) { %>
+                                <td style="background: #3bca3b;"><%= hooky.total %></td>
+                            <% } else { %>
+                                <td><%= hooky.total %></td>
+                            <% } %>
+                        <% } %>
+                        <% if (!hooky.without_reason || hooky.without_reason == 0) { %>
+                            <td style="background: #3bca3b;">0</td>
+                        <% } else { %>
+                            <td style="background: #d01e1e;"><%= hooky.without_reason %></td>
+                        <% } %>
+                        <% if (!hooky.without_doc) { %>
+                            <td style="background: #3bca3b;">0</td>
+                        <% } else { %>
+                            <td style="background: pink;"><%= hooky.without_doc %></td>
+                        <% } %>
+                        <% if (!hooky.with_good_reason) { %>
+                            <td style="background: #3bca3b;">0</td>
+                        <% } else { %>
+                            <td style="background: #3bca3b;"><%= hooky.with_good_reason %></td>
+                        <% } %>
+                    </tr>
+                <% }); %>
+                </table>
+            </div>
+            <div style="display: inline-block;position: absolute;left: 55%;width: 30%;padding: 10px;" class="table-wrapper">
+                <h2 style="text-align: center;margin: 10px;">Пропуски без подтверждения</h2>
+                <div class="form-inline">
+                    <div style="position: relative;left: 50%;transform: translate(-50%, 0);">
+                        <select style="margin: 0 5px 0 5px;" class="custom-select" name="sel_st">
+                            <% students.forEach((student) => { %>
+                                <% if (student.pk_student == sel_st) { %>
+                                    <option value="<%= student.pk_student %>" selected><%= student.number %>. <%= student.student_name %></option>
+                                <% } else { %>
+                                    <option value="<%= student.pk_student %>"><%= student.number %>. <%= student.student_name %></option>
+                                <% } %>
+                            <% }); %>
+                        </select>
+                        <input style="margin: 10px;" class="btn btn-primary" type="submit" name="attendance_select_for_period_by_day" value="Сформировать ведомость" />
+                    </div>
+                </div>
+                <table class="central fl-table">
+                    <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Кол-во за день</th>
+                        <th>Статус по ув. причине</th>
+                    </tr>
+                    </thead>
+                    <% hookiesbyday.forEach((item) => { %>
+                    <tr>
+                        <td><%= item.dateOfLesson %></td>
+                        <td><%= item.sumsoh %></td>
+                        <td><input type="checkbox" name="dates_for_update_statuses" value="<%= item.dateOfLesson %>" /></td>
+                    </tr>
+                    <% }); %>
+                </table>
+                <% if (hookiesbyday.length != 0) { %>
+                    <input style="margin: 10px;" class="btn btn-warning central" type="submit" name="attendance_update_statuses" value="Внести изменения в посещаемости студента" />
+                <% } %>
+            </div>
+        </div>
+    </form>
+</body>
+</html>
